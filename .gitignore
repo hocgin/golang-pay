@@ -2,3 +2,4 @@
 .idea/
 *.iml
 wxpay/wxpay_request_test.go
+.DS_Store
