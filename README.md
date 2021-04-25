@@ -31,3 +31,35 @@ func TestTradePreCreate(t *testing.T) {
 
 
 ```
+
+
+### 微信支付
+```go
+package wxpay
+
+import (
+    "fmt"
+    "testing"
+)
+
+var (
+    wxpayConfig = CreateConfigStorage("appid",
+        "mchid", "key",
+        IsDev(false), CertFileText(`密钥文件内容`))
+    service = wxpayConfig.CreateService()
+)
+
+func TestUnifiedOrderRequest(t *testing.T) {
+    request := &UnifiedOrderRequest{
+        OutTradeNo:     "112",
+        Body:           "xx",
+        TotalFee:       1.00,
+        SpbillCreateIp: "127.0.0.1",
+        TradeType:      "JSAPI",
+        NotifyUrl:      "http://www.baidu.com",
+        Openid:         "opQx55EOxwwO8kyQKrQePlHTOBAg",
+    }
+    response, _ := service.UnifiedOrder(request)
+    fmt.Sprint(response)
+}
+```
