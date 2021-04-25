@@ -3,7 +3,7 @@ package net
 import "testing"
 
 func TestGetUrl(t *testing.T) {
-	params := make(map[string]string)
+	params := make(map[string]interface{})
 	params["a"] = "1"
 	params["b"] = "2"
 
@@ -14,7 +14,7 @@ func TestGetUrl(t *testing.T) {
 }
 
 func TestGetUrlEncode(t *testing.T) {
-	params := make(map[string]string)
+	params := make(map[string]interface{})
 	params["a"] = "1"
 	params["b"] = "你好"
 

@@ -10,3 +10,7 @@ type SetResponseBody interface {
 type AfterPropertiesSet interface {
     AfterPropertiesSet()
 }
+
+type IsCheckSign interface {
+    IsCheckSign() bool
+}

@@ -51,11 +51,13 @@ func (this WxPayPaymentService) RequestObject(request WxPayRequest, v interface{
     _ = xml.Unmarshal([]byte(body), (*StringMap)(&bodyMap))
 
     // 2. 检查签名
-    verifySignValue := bodyMap[SIGN_FIELD_NAME].(string)
-    bodyMap[SIGN_FIELD_NAME] = ""
-    isOk := signType.Verify(GetSignValue(bodyMap, key), key, verifySignValue)
-    if !isOk {
-        return errors.New("验证签名失败")
+    if response, isOk := v.(ops.IsCheckSign); isOk && response.IsCheckSign() {
+        verifySignValue := bodyMap[SIGN_FIELD_NAME].(string)
+        bodyMap[SIGN_FIELD_NAME] = ""
+        isOk := signType.Verify(GetSignValue(bodyMap, key), key, verifySignValue)
+        if !isOk {
+            return errors.New("验证签名失败")
+        }
     }
 
     // 3. 转实体
