@@ -1,19 +1,19 @@
 package wxpay
 
 import (
-    "encoding/xml"
+	"encoding/xml"
 )
 
 type CloseOrderRequest struct {
-    XMLName    xml.Name `xml:"xml"`
-    OutTradeNo string   `xml:"out_trade_no"`
-    WxPayRequestImpl
+	XMLName    xml.Name `xml:"xml"`
+	OutTradeNo string   `xml:"out_trade_no"`
+	WxPayRequestImpl
 }
 
-func (this *CloseOrderRequest) GetUrl() string {
-    return "/pay/closeorder"
+func (this *CloseOrderRequest) AfterPropertiesSet() {
+	this.RequestUrl = "/pay/closeorder"
 }
 
 type CloseOrderResponse struct {
-    WxPayResponseImpl
+	WxPayResponseImpl
 }

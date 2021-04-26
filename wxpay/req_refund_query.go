@@ -17,8 +17,8 @@ type RefundQueryRequest struct {
 	WxPayRequestImpl
 }
 
-func (this *RefundQueryRequest) GetUrl() string {
-	return "/pay/refundquery"
+func (this *RefundQueryRequest) AfterPropertiesSet() {
+	this.RequestUrl = "/pay/refundquery"
 }
 
 type RefundQueryResponse struct {

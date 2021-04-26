@@ -1,9 +1,5 @@
 package alipay
 
-import (
-	"github.com/hocgin/golang-pay/core/ops"
-)
-
 type TradeRefundRequest struct {
 	AliPayRequestImpl
 	BizContent TradeCreateBizContent `json:"biz_content,omitempty"`
@@ -15,7 +11,8 @@ type TradeRefundBizContent struct {
 	RefundAmount float64 `json:"refund_amount,omitempty"`
 }
 
-func (this *TradeRefundRequest) RequestBefore() {
+func (this *TradeRefundRequest) AfterPropertiesSet() {
+	this.AliPayRequestImpl.AfterPropertiesSet()
 	this.Method = "alipay.trade.refund"
 }
 
@@ -34,7 +31,7 @@ type TradeRefundResponse struct {
 	PresentRefundDiscountAmount  float64           `json:"present_refund_discount_amount,omitempty"`
 	PresentRefundMdiscountAmount float64           `json:"present_refund_mdiscount_amount,omitempty"`
 	PresetPayToolInfo            PresetPayToolInfo `json:"refund_preset_paytool_list,omitempty"`
-	ops.PayResponse
+	AliPayResponseImpl
 }
 
 type PresetPayToolInfo struct {

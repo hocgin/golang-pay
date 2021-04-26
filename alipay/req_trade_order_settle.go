@@ -1,9 +1,5 @@
 package alipay
 
-import (
-	"github.com/hocgin/golang-pay/core/ops"
-)
-
 type TradeOrderSettleRequest struct {
 	AliPayRequestImpl
 	BizContent TradeCreateBizContent `json:"biz_content,omitempty"`
@@ -18,11 +14,12 @@ type OpenApiRoyaltyDetailInfoPojo struct {
 	TransIn string `json:"trans_in,omitempty"`
 }
 
-func (this *TradeOrderSettleRequest) RequestBefore() {
+func (this *TradeOrderSettleRequest) AfterPropertiesSet() {
+	this.AliPayRequestImpl.AfterPropertiesSet()
 	this.Method = "alipay.trade.order.settle"
 }
 
 type TradeOrderSettleResponse struct {
 	TradeNo string `json:"trade_no,omitempty"`
-	ops.PayResponse
+	AliPayResponseImpl
 }

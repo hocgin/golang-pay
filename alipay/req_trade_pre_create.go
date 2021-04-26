@@ -11,7 +11,8 @@ type TradePreCreateBizContent struct {
 	Subject     string  `json:"subject,omitempty"`
 }
 
-func (this *TradePreCreateRequest) RequestBefore() {
+func (this *TradePreCreateRequest) AfterPropertiesSet() {
+	this.AliPayRequestImpl.AfterPropertiesSet()
 	this.Method = "alipay.trade.precreate"
 }
 

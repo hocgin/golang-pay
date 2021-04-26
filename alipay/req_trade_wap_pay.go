@@ -1,9 +1,5 @@
 package alipay
 
-import (
-	"github.com/hocgin/golang-pay/core/ops"
-)
-
 type TradeWapPayRequest struct {
 	AliPayRequestImpl
 	BizContent TradeCreateBizContent `json:"biz_content,omitempty"`
@@ -17,10 +13,11 @@ type TradeWapPayBizContent struct {
 	Subject     string  `json:"subject,omitempty"`
 }
 
-func (this *TradeWapPayRequest) RequestBefore() {
+func (this *TradeWapPayRequest) AfterPropertiesSet() {
+	this.AliPayRequestImpl.AfterPropertiesSet()
 	this.Method = "alipay.trade.wap.pay"
 }
 
 type TradeWapPayResponse struct {
-	ops.PayResponse
+	AliPayResponseImpl
 }

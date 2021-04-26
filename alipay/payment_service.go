@@ -1,12 +1,8 @@
 package alipay
 
 import (
-	"encoding/json"
 	"errors"
-	"github.com/hocgin/golang-pay/core/net"
-	"github.com/hocgin/golang-pay/core/utils"
-	"net/url"
-	"strings"
+	"github.com/hocgin/golang-pay/core"
 )
 
 type AliPayPaymentService struct {
@@ -20,78 +16,85 @@ func (service *AliPayPaymentService) getUrl() string {
 	return "https://openapi.alipay.com/gateway.do"
 }
 func (this AliPayPaymentService) RequestObject(request AliPayRequest, v interface{}) error {
-	storage := this.ConfigStorage
-	signType := storage.Ext.SignType
-	privateKey := storage.PrivateKey
-	publicKey := storage.PublicKey
-	baseUrl := this.getUrl()
-
+	// ==================== [请求] ====================
 	// 1. 构建参数
-	request.DefaultConfig(this)
-	request.RequestBefore()
-	bytes, _ := json.Marshal(request)
-	data := string(bytes)
-
-	// 2. 签名
-	values := utils.JsonToMapValues(data)
-	signValue := GetSign(values, signType, privateKey)
-	values[SIGN_FIELD_NAME] = signValue
-
-	// 3. 构建URL
-	url := net.GetUrlEncode(baseUrl, values)
-
-	// 4. 发起请求
-	body, err := net.GetString(url)
-	if err != nil {
-		return err
+	if ref, isOk := request.(core.SetPayService); isOk {
+		ref.SetPayService(this)
 	}
 
-	// ==== [响应] ====
-	// 1. 解析响应数据
-	bodyMap := make(map[string]interface{})
-	err = json.Unmarshal([]byte(body), &bodyMap)
-	if err != nil {
-		return err
+	if ref, isOk := request.(core.AfterPropertiesSet); isOk {
+		ref.AfterPropertiesSet()
 	}
 
-	substr := "response"
-	beginIndex := strings.Index(body, substr) + len(substr) + 2
-	endIndex := strings.Index(body, ",\""+SIGN_FIELD_NAME+" \"")
-	if endIndex < 0 {
-		return errors.New("响应解析错误")
+	// 2. 设置签名
+	if ref, isOk := request.(core.FillSign); isOk {
+		ref.FillSign(request)
 	}
-	response := string([]byte(body)[beginIndex:endIndex])
-	sign := bodyMap[SIGN_FIELD_NAME].(string)
+
+	// 3. 发起请求
+	var body string
+	var err error
+	if ref, isOk := request.(core.DoRequest); isOk {
+		body, err = ref.DoRequest(request)
+		if err != nil {
+			return err
+		}
+	}
+
+	// ==================== [响应] ====================
+	// 1. 响应数据
+	if ref, isOk := v.(core.SetPayService); isOk {
+		ref.SetPayService(this)
+	}
+
+	if ref, isOk := v.(core.SetBody); isOk {
+		ref.SetBody(body)
+	}
 
 	// 2. 检查签名
-	isOk := signType.Verify(response, publicKey, sign)
-	if !isOk {
-		return errors.New("验证签名失败")
+	if ref, isOk := v.(core.IsCheckSign); isOk && ref.IsCheckSign() {
+		if ref, isOk := v.(core.CheckSign); isOk && !ref.CheckSign() {
+			return errors.New("签名验证失败")
+		}
 	}
-	_ = json.Unmarshal([]byte(response), v)
+
+	// 3. 转实体
+	if ref, isOk := v.(core.ToObject); isOk {
+		if err := ref.ToObject(v); err != nil {
+			return err
+		}
+	}
+	if response, isOk := v.(core.AfterPropertiesSet); isOk {
+		response.AfterPropertiesSet()
+	}
 	return err
 }
 
-func (this AliPayPaymentService) MessageObject(queryParams string, v interface{}) error {
-	publicKey := this.ConfigStorage.PublicKey
-
-	newQueryParams, _ := url.QueryUnescape(queryParams)
-	queryStrings := utils.QueryStrings(queryParams)
-	signType := queryStrings[SIGN_TYPE_FIELD_NAME].(string)
-	sign := queryStrings[SIGN_FIELD_NAME].(string)
-	waitSignString := strings.ReplaceAll(newQueryParams, "&"+SIGN_FIELD_NAME+"="+sign, "")
-	waitSignString = strings.ReplaceAll(waitSignString, "&"+SIGN_TYPE_FIELD_NAME+"="+signType, "")
-
-	vars := utils.QueryStrings(waitSignString)
-	keys := utils.KeysOrdered(utils.Keys(vars), false)
-	unsignStr := utils.ConnectEncode(vars, keys, "&")
-	signScheme := GetSignScheme(signType)
-
-	if !signScheme.Verify(unsignStr, publicKey, sign) {
-		return errors.New("校验失败")
+func (this AliPayPaymentService) MessageObject(queryString string, v interface{}) error {
+	if ref, isOk := v.(core.SetPayService); isOk {
+		ref.SetPayService(this)
 	}
-	err := utils.QueryParams(queryParams, v)
-	return err
+
+	if ref, isOk := v.(core.SetBody); isOk {
+		ref.SetBody(queryString)
+	}
+
+	if ref, isOk := v.(core.IsCheckSign); isOk && ref.IsCheckSign() {
+		if ref, isOk := v.(core.CheckSign); isOk && !ref.CheckSign() {
+			return errors.New("签名验证失败")
+		}
+	}
+
+	if ref, isOk := v.(core.ToObject); isOk {
+		if err := ref.ToObject(v); err != nil {
+			return err
+		}
+	}
+
+	if ref, isOk := v.(core.AfterPropertiesSet); isOk {
+		ref.AfterPropertiesSet()
+	}
+	return nil
 }
 
 // request
@@ -117,8 +120,8 @@ func (this AliPayPaymentService) TradeQuery(request AliPayRequest) (*TradeQueryR
 }
 
 // message
-func (this AliPayPaymentService) TradeStatusSyncMessage(queryParams string) (*TradeStatusSyncMessage, error) {
+func (this AliPayPaymentService) TradeStatusSyncMessage(queryString string) (*TradeStatusSyncMessage, error) {
 	result := &TradeStatusSyncMessage{}
-	err := this.MessageObject(queryParams, result)
+	err := this.MessageObject(queryString, result)
 	return result, err
 }

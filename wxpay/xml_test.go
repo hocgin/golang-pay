@@ -3,7 +3,7 @@ package wxpay
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/hocgin/golang-pay/core/ops"
+	"github.com/hocgin/golang-pay/core"
 	"testing"
 )
 
@@ -18,10 +18,10 @@ func TestRefundQuery(t *testing.T) {
 	var result interface{}
 	result = &RefundQueryResponse{}
 	_ = xml.Unmarshal([]byte(xmlStr), result)
-	if response, isOk := result.(ops.SetResponseBody); isOk {
-		response.SetResponseBody(xmlStr)
+	if response, isOk := result.(core.SetBody); isOk {
+		response.SetBody(xmlStr)
 	}
-	if response, isOk := result.(ops.AfterPropertiesSet); isOk {
+	if response, isOk := result.(core.AfterPropertiesSet); isOk {
 		response.AfterPropertiesSet()
 	}
 	fmt.Print(result)

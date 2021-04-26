@@ -1,9 +1,5 @@
 package alipay
 
-import (
-	"github.com/hocgin/golang-pay/core/ops"
-)
-
 type TradeCancelRequest struct {
 	AliPayRequestImpl
 	BizContent TradeCancelBizContent `json:"biz_content,omitempty"`
@@ -13,7 +9,8 @@ type TradeCancelBizContent struct {
 	TradeNo    string `json:"trade_no,omitempty"`
 }
 
-func (this *TradeCancelRequest) RequestBefore() {
+func (this *TradeCancelRequest) AfterPropertiesSet() {
+	this.AliPayRequestImpl.AfterPropertiesSet()
 	this.Method = "alipay.trade.cancel"
 }
 
@@ -24,5 +21,5 @@ type TradeCancelResponse struct {
 	Action             string `json:"action,omitempty"`
 	GmtRefundPay       string `json:"gmt_refund_pay,omitempty"`
 	RefundSettlementId string `json:"refund_settlement_id,omitempty"`
-	ops.PayResponse
+	AliPayResponseImpl
 }

@@ -1,78 +1,114 @@
 package wxpay
 
 import (
-    "encoding/xml"
-    "errors"
-    "github.com/hocgin/golang-pay/core/net"
-    "github.com/hocgin/golang-pay/core/ops"
-    "github.com/hocgin/golang-pay/core/utils"
+	"errors"
+	"github.com/hocgin/golang-pay/core"
 )
 
 type WxPayPaymentService struct {
-    ConfigStorage WxPayConfigStorage
+	ConfigStorage WxPayConfigStorage
 }
 
 func (this WxPayPaymentService) getUrl() string {
-    if this.ConfigStorage.Ext.IsDev {
-        return "https://api.mch.weixin.qq.com/sandboxnew"
-    }
-    return "https://api.mch.weixin.qq.com"
+	if this.ConfigStorage.Ext.IsDev {
+		return "https://api.mch.weixin.qq.com/sandboxnew"
+	}
+	return "https://api.mch.weixin.qq.com"
 }
 
 func (this WxPayPaymentService) RequestObject(request WxPayRequest, v interface{}) error {
-    storage := this.ConfigStorage
-    key := storage.Key
-    signType := storage.Ext.SignType
-    baseUrl := this.getUrl()
+	// ==================== [请求] ====================
+	// 1. 构建请求
+	if ref, isOk := request.(core.SetPayService); isOk {
+		ref.SetPayService(this)
+	}
 
-    // 1. 构建参数
-    request.DefaultConfig(this)
-    request.RequestBefore()
+	if ref, isOk := request.(core.AfterPropertiesSet); isOk {
+		ref.AfterPropertiesSet()
+	}
 
-    // 2. 签名
-    values := utils.XmlToMapValues(request)
-    signValue := GetSign(values, signType, key)
-    request.SetSign(signValue)
+	// 2. 设置签名
+	if ref, isOk := request.(core.FillSign); isOk {
+		ref.FillSign(request)
+	}
 
-    // 3. 构建URL
-    url := (baseUrl + request.GetUrl())
+	// 3. 发起请求
+	var body string
+	var err error
+	if ref, isOk := request.(core.DoRequest); isOk {
+		body, err = ref.DoRequest(request)
+		if err != nil {
+			return err
+		}
+	}
 
-    // 4. 发起请求
-    bytes, _ := xml.Marshal(request)
-    data := string(bytes)
-    body, err := net.PostString(url, data)
-    if err != nil {
-        return err
-    }
+	// ==================== [响应] ====================
+	// 1. 响应数据
+	if ref, isOk := v.(core.SetPayService); isOk {
+		ref.SetPayService(this)
+	}
 
-    // ==== [响应] ====
-    // 1. 解析响应数据
-    bodyMap := make(map[string]interface{})
-    _ = xml.Unmarshal([]byte(body), (*StringMap)(&bodyMap))
+	if ref, isOk := v.(core.SetBody); isOk {
+		ref.SetBody(body)
+	}
 
-    // 2. 检查签名
-    if response, isOk := v.(ops.IsCheckSign); isOk && response.IsCheckSign() {
-        verifySignValue := bodyMap[SIGN_FIELD_NAME].(string)
-        bodyMap[SIGN_FIELD_NAME] = ""
-        isOk := signType.Verify(GetSignValue(bodyMap, key), key, verifySignValue)
-        if !isOk {
-            return errors.New("验证签名失败")
-        }
-    }
+	// 2. 检查签名
+	if ref, isOk := v.(core.IsCheckSign); isOk && ref.IsCheckSign() {
+		if ref, isOk := v.(core.CheckSign); isOk && !ref.CheckSign() {
+			return errors.New("签名验证失败")
+		}
+	}
 
-    // 3. 转实体
-    err = xml.Unmarshal([]byte(body), &v)
-    if response, isOk := v.(ops.SetResponseBody); isOk {
-        response.SetResponseBody(body)
-    }
-    if response, isOk := v.(ops.AfterPropertiesSet); isOk {
-        response.AfterPropertiesSet()
-    }
-    return err
+	// 3. 转实体
+	if ref, isOk := v.(core.ToObject); isOk {
+		if err := ref.ToObject(v); err != nil {
+			return err
+		}
+	}
+
+	if response, isOk := v.(core.AfterPropertiesSet); isOk {
+		response.AfterPropertiesSet()
+	}
+	return err
 }
 
+func (this WxPayPaymentService) MessageObject(queryString string, v interface{}) error {
+	if ref, isOk := v.(core.SetPayService); isOk {
+		ref.SetPayService(this)
+	}
+
+	if ref, isOk := v.(core.SetBody); isOk {
+		ref.SetBody(queryString)
+	}
+
+	if ref, isOk := v.(core.IsCheckSign); isOk && ref.IsCheckSign() {
+		if ref, isOk := v.(core.CheckSign); isOk && !ref.CheckSign() {
+			return errors.New("签名验证失败")
+		}
+	}
+
+	if ref, isOk := v.(core.ToObject); isOk {
+		if err := ref.ToObject(v); err != nil {
+			return err
+		}
+	}
+
+	if ref, isOk := v.(core.AfterPropertiesSet); isOk {
+		ref.AfterPropertiesSet()
+	}
+	return nil
+}
+
+// request
 func (this WxPayPaymentService) UnifiedOrder(request WxPayRequest) (*UnifiedOrderResponse, error) {
-    result := &UnifiedOrderResponse{}
-    err := this.RequestObject(request, result)
-    return result, err
+	result := &UnifiedOrderResponse{}
+	err := this.RequestObject(request, result)
+	return result, err
+}
+
+// message
+func (this WxPayPaymentService) PayRefund(queryString string) (*PayRefundMessage, error) {
+	result := &PayRefundMessage{}
+	err := this.MessageObject(queryString, result)
+	return result, err
 }

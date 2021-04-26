@@ -2,14 +2,11 @@ package utils
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/url"
 	"reflect"
 	"sort"
-	"strconv"
 	"strings"
-	"time"
 )
 
 func ObjectToMap(object interface{}) map[string]interface{} {
@@ -70,7 +67,7 @@ func XmlToMapValues(ref interface{}) map[string]interface{} {
 			}
 		}
 		tagName := fieldTag.Get("xml")
-		if tagName == "" || tagName == "xml" {
+		if tagName == "" || tagName == "-" || tagName == "xml" {
 			continue
 		}
 
@@ -182,6 +179,7 @@ func isBasicType(i interface{}) bool {
 	return false
 }
 
+// url参数转map
 func QueryStrings(queryParams string) map[string]interface{} {
 	result := make(map[string]interface{})
 	values := strings.Split(queryParams, "&")
@@ -198,6 +196,7 @@ func QueryStrings(queryParams string) map[string]interface{} {
 	return result
 }
 
+// url参数转对象
 func QueryParams(queryParams string, v interface{}) error {
 	values := strings.Split(queryParams, "&")
 	result := "{"
@@ -225,92 +224,4 @@ func QueryParams(queryParams string, v interface{}) error {
 	}
 	result += "}"
 	return json.Unmarshal([]byte(result), v)
-}
-
-func Convert(value string, ref reflect.Value) (reflect.Value, error) {
-	refType := ref.Type()
-	switch refType {
-	case reflect.TypeOf(0):
-		val, err := strconv.Atoi(value)
-		return reflect.ValueOf(val), err
-	case reflect.TypeOf(int8(0)):
-		val, err := strconv.ParseInt(value, 10, 8)
-		return reflect.ValueOf(int8(val)), err
-	case reflect.TypeOf(int16(0)):
-		val, err := strconv.ParseInt(value, 10, 16)
-		return reflect.ValueOf(int16(val)), err
-	case reflect.TypeOf(int32(0)):
-		val, err := strconv.ParseInt(value, 10, 32)
-		return reflect.ValueOf(int32(val)), err
-	case reflect.TypeOf(int64(0)):
-		val, err := strconv.ParseInt(value, 10, 64)
-		return reflect.ValueOf(val), err
-	case reflect.TypeOf(uint(0)):
-		val, err := strconv.ParseUint(value, 10, 0)
-		return reflect.ValueOf(uint(val)), err
-	case reflect.TypeOf(uint8(0)):
-		val, err := strconv.ParseUint(value, 10, 8)
-		return reflect.ValueOf(uint8(val)), err
-	case reflect.TypeOf(uint16(0)):
-		val, err := strconv.ParseUint(value, 10, 16)
-		return reflect.ValueOf(uint16(val)), err
-	case reflect.TypeOf(uint32(0)):
-		val, err := strconv.ParseUint(value, 10, 32)
-		return reflect.ValueOf(uint32(val)), err
-	case reflect.TypeOf(uint64(0)):
-		val, err := strconv.ParseUint(value, 10, 64)
-		return reflect.ValueOf(val), err
-	case reflect.TypeOf(float32(0)):
-		val, err := strconv.ParseFloat(value, 32)
-		return reflect.ValueOf(float32(val)), err
-	case reflect.TypeOf(float64(0)):
-		val, err := strconv.ParseFloat(value, 64)
-		return reflect.ValueOf(val), err
-	case reflect.TypeOf(false):
-		val, err := strconv.ParseBool(value)
-		if err == nil {
-			return reflect.ValueOf(val), nil
-		}
-		val2, err := strconv.Atoi(value)
-		if err == nil {
-			return reflect.ValueOf(val2 != 0), nil
-		}
-		return reflect.Value{}, err
-	case reflect.TypeOf(time.Now()):
-		val, err := time.Parse("2006-01-02 15:04:05", value)
-		return reflect.ValueOf(val), err
-	default:
-	}
-	return reflect.ValueOf(nil), errors.New("转换失败")
-}
-
-func InjectValue(v interface{}, params map[string]string) {
-	//elem := reflect.ValueOf(v).Elem()
-	ref := reflect.ValueOf(v).Elem()
-	for i := 0; i < ref.NumField(); i++ {
-		fieldType := ref.Type().Field(i)
-		fieldTag := fieldType.Tag
-		field := ref.Field(i)
-
-		if field.Kind() == reflect.Struct {
-			i2 := reflect.ValueOf(v)
-			reflect.ValueOf(&i2).Elem()
-			//InjectValue(&i2, params)
-		}
-
-		tagName := fieldTag.Get("json")
-		if tagName == "" {
-			tagName = strings.ToLower(fieldType.Name)
-		}
-
-		tagName = strings.Split(tagName, ",")[0]
-		if value, ok := params[tagName]; ok {
-			field := ref.FieldByName(fieldType.Name)
-			if reflect.ValueOf(value).Type() == field.Type() {
-				field.Set(reflect.ValueOf(value))
-			} else if value, err := Convert(value, field); err == nil {
-				field.Set(value)
-			}
-		}
-	}
 }

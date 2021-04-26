@@ -1,22 +1,22 @@
 package wxpay
 
 import (
-    "encoding/xml"
+	"encoding/xml"
 )
 
 type BatchQueryCommentRequest struct {
-    XMLName   xml.Name `xml:"xml"`
-    BeginTime string   `xml:"begin_time"`
-    EndTime   string   `xml:"end_time"`
-    Offset    string   `xml:"offset"`
-    Limit     string   `xml:"limit"`
-    WxPayRequestImpl
+	XMLName   xml.Name `xml:"xml"`
+	BeginTime string   `xml:"begin_time"`
+	EndTime   string   `xml:"end_time"`
+	Offset    string   `xml:"offset"`
+	Limit     string   `xml:"limit"`
+	WxPayRequestImpl
 }
 
-func (this *BatchQueryCommentRequest) GetUrl() string {
-    return "/billcommentsp/batchquerycomment"
+func (this *BatchQueryCommentRequest) AfterPropertiesSet() {
+	this.RequestUrl = "/billcommentsp/batchquerycomment"
 }
 
 type BatchQueryCommentResponse struct {
-    WxPayResponseImpl
+	WxPayResponseImpl
 }

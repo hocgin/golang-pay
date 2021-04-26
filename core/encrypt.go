@@ -11,13 +11,27 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"github.com/hocgin/golang-pay/core/encrypt"
+	"strings"
 )
 
-func Md5(data string) string {
-	return fmt.Sprintf("%x", md5.Sum([]byte(data)))
+// ====================================================== AES-ECB 256 ======================================================
+func AesECBDecrypt(cryted string, key string) string {
+	ciphertext, _ := base64.StdEncoding.DecodeString(cryted)
+	if err := encrypt.SetAesKey(strings.ToLower(key)); err != nil {
+		return ""
+	}
+	plaintext, _ := encrypt.AesECBDecrypt(ciphertext)
+	return string(plaintext)
 }
 
-// RSA 签名: use PKCS8 privateKey
+// ====================================================== MD5 ======================================================
+func MD5(data string) string {
+	return strings.ToLower(fmt.Sprintf("%x", md5.Sum([]byte(data))))
+}
+
+// ====================================================== RSA ======================================================
+// RSA 签名
 func RsaSign(signContent string, privateKey string, hash crypto.Hash) string {
 	shaNew := hash.New()
 	shaNew.Write([]byte(signContent))
@@ -33,16 +47,16 @@ func RsaSign(signContent string, privateKey string, hash crypto.Hash) string {
 	return base64.StdEncoding.EncodeToString(signature)
 }
 
-// RSA 签名验证:
+// RSA 签名验证
 func RsaVerify(signContent string, publicKey string, verifySign string, hash crypto.Hash) bool {
 	pubKey, err := GetPublicKey(publicKey)
 	if err != nil {
-		_ = fmt.Errorf("{} 签名公钥错误", publicKey)
+		_ = fmt.Errorf("%s 签名公钥错误", publicKey)
 		return false
 	}
 	signData, err := base64.StdEncoding.DecodeString(verifySign)
 	if err != nil {
-		_ = fmt.Errorf("{} 签名字符串解析错误", publicKey)
+		_ = fmt.Errorf("%s 签名字符串解析错误", publicKey)
 		return false
 	}
 

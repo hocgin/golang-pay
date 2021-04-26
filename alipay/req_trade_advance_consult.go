@@ -1,12 +1,8 @@
 package alipay
 
-import (
-	"github.com/hocgin/golang-pay/core/ops"
-)
-
 type TradeAdvanceConsultRequest struct {
-	AliPayRequestImpl
 	BizContent TradeAdvanceConsultBizContent `json:"biz_content,omitempty"`
+	AliPayRequestImpl
 }
 type TradeAdvanceConsultBizContent struct {
 	OutTradeNo   string `json:"out_trade_no,omitempty"`
@@ -15,7 +11,8 @@ type TradeAdvanceConsultBizContent struct {
 	AgreementNo  string `json:"agreement_no,omitempty"`
 }
 
-func (this *TradeAdvanceConsultRequest) RequestBefore() {
+func (this *TradeAdvanceConsultRequest) AfterPropertiesSet() {
+	this.AliPayRequestImpl.AfterPropertiesSet()
 	this.Method = "alipay.trade.advance.consult"
 }
 
@@ -27,7 +24,7 @@ type TradeAdvanceConsultResponse struct {
 	RiskLevel               string                 `json:"risk_level,omitempty"`
 	ResultMessage           string                 `json:"result_message,omitempty"`
 	ResultCode              string                 `json:"result_code,omitempty"`
-	ops.PayResponse
+	AliPayResponseImpl
 }
 
 type WaitRepaymentOrderInfo struct {

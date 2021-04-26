@@ -25,17 +25,6 @@ func TestFirstToUpper(t *testing.T) {
 	fieldName := FirstToUpper("gmt")
 	fmt.Print(fieldName)
 }
-func TestInjectValue(t *testing.T) {
-	message := &TestObject{}
-
-	params := make(map[string]string)
-	params["charset"] = "utf-8"
-	params["id"] = "111"
-	params["enabled"] = "true"
-	params["created_at"] = "2019-12-10 18:12:49"
-	InjectValue(message, params)
-	fmt.Print(message)
-}
 
 type TestObject struct {
 	Charset   string    `json:"charset"`
