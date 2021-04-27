@@ -16,10 +16,6 @@ type BeforePropertiesSet interface {
 	BeforePropertiesSet()
 }
 
-type IsCheckSign interface {
-	IsCheckSign() bool
-}
-
 type CheckSign interface {
 	CheckSign() bool
 }
@@ -36,12 +32,23 @@ type DoRequest interface {
 	DoRequest(interface{}) (string, error)
 }
 
+type DoBuildUrl interface {
+	DoBuildUrl(interface{}) (string, error)
+}
+
+type DoBuildForm interface {
+	DoBuildForm(interface{}) (string, error)
+}
+
+type Download interface {
+}
+
 // request
-type PayRequest struct {
+type PayRequestImpl struct {
 	PayService interface{}
 }
 
-func (this *PayRequest) SetPayService(payService interface{}) {
+func (this *PayRequestImpl) SetPayService(payService interface{}) {
 	this.PayService = payService
 }
 

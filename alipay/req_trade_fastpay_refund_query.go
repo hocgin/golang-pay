@@ -2,7 +2,7 @@ package alipay
 
 type TradeFastpayRefundQueryRequest struct {
 	AliPayRequestImpl
-	BizContent TradeCreateBizContent `json:"biz_content,omitempty"`
+	BizContent TradeFastpayRefundQueryBizContent `json:"biz_content,omitempty"`
 }
 
 type TradeFastpayRefundQueryBizContent struct {

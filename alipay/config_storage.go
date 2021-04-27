@@ -6,7 +6,6 @@ import (
 )
 
 type AliPayConfigStorage struct {
-	Name       string
 	PublicKey  string
 	PrivateKey string
 	AppId      string
@@ -25,12 +24,12 @@ type aliPayConfigStorageExt struct {
 
 func CreateConfigStorage(appId string, publicKey string, privateKey string, options ...func(*aliPayConfigStorageExt)) *AliPayConfigStorage {
 	result := &AliPayConfigStorage{
-		Name:       "alipay",
 		AppId:      appId,
 		PublicKey:  publicKey,
 		PrivateKey: privateKey,
 		Ext:        DefaultExt,
 	}
+	result.Name = "alipay"
 	for _, option := range options {
 		option(&result.Ext)
 	}

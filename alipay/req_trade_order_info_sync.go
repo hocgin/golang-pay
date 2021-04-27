@@ -2,7 +2,7 @@ package alipay
 
 type TradeOrderInfoSyncRequest struct {
 	AliPayRequestImpl
-	BizContent TradeCreateBizContent `json:"biz_content,omitempty"`
+	BizContent TradeOrderInfoSyncBizContent `json:"biz_content,omitempty"`
 }
 
 type TradeOrderInfoSyncBizContent struct {

@@ -2,6 +2,7 @@ package wxpay
 
 import (
 	"errors"
+	"fmt"
 	"github.com/hocgin/golang-pay/core/sign"
 	"github.com/hocgin/golang-pay/core/utils"
 	"strconv"
@@ -37,7 +38,7 @@ func GetSignValue(values map[string]interface{}, key string) string {
 	vars := utils.MapFilterNullOrEmptry(values)
 	keys := utils.KeysOrdered(utils.Keys(vars), false)
 	unsignStr := utils.ConnectEncode(vars, keys, "&")
-	return unsignStr + ("&key=" + key)
+	return fmt.Sprintf(`%s&key=%s`, unsignStr, key)
 }
 
 func GetSign(values map[string]interface{}, signScheme sign.SignScheme, key string) string {

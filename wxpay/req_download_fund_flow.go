@@ -19,3 +19,7 @@ func (this *DownloadFundFlowRequest) AfterPropertiesSet() {
 type DownloadFundFlowResponse struct {
 	WxPayResponseImpl
 }
+
+func (this *DownloadFundFlowResponse) CheckSign() bool {
+	return true
+}

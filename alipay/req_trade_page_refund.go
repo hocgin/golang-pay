@@ -2,7 +2,7 @@ package alipay
 
 type TradePageRefundRequest struct {
 	AliPayRequestImpl
-	BizContent TradeCreateBizContent `json:"biz_content,omitempty"`
+	BizContent TradePageRefundBizContent `json:"biz_content,omitempty"`
 }
 
 type TradePageRefundBizContent struct {

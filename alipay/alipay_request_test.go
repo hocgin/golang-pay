@@ -47,3 +47,26 @@ func TestTradePreCreate(t *testing.T) {
 	response, _ := service.TradePreCreate(request)
 	fmt.Print(response)
 }
+
+func TestTradeAppPay(t *testing.T) {
+	request := &TradeAppPayRequest{
+		BizContent: TradeAppPayBizContent{
+			Subject:     "测试订单",
+			OutTradeNo:  "201911270908381158722",
+			TotalAmount: 1.0,
+		},
+	}
+	response, _ := service.TradeAppPay(request)
+	fmt.Println(response)
+}
+
+func TestTradePagePay(t *testing.T) {
+	request := &TradePagePayRequest{
+		BizContent: TradePagePayBizContent{
+			OutTradeNo:  "201911270908381158722",
+			TotalAmount: 1.0,
+		},
+	}
+	response, _ := service.TradePagePay(request)
+	fmt.Println(response)
+}

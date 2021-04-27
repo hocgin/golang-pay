@@ -16,7 +16,7 @@ type WxPayConfigStorage struct {
 }
 
 type wxPayConfigStorageExt struct {
-	SignType     sign.SignScheme // default value: RSA2
+	SignType     sign.SignScheme // default value: MD5
 	CertFileText string          // default value: ""
 	IsDev        bool            // default value: false
 }
@@ -35,12 +35,12 @@ type Option func(ext *wxPayConfigStorageExt)
 
 func CreateConfigStorage(appId string, mchId string, key string, options ...func(*wxPayConfigStorageExt)) *WxPayConfigStorage {
 	result := &WxPayConfigStorage{
-		Name:  "wxpay",
 		AppId: appId,
 		MchId: mchId,
 		Key:   key,
 		Ext:   DefaultExt,
 	}
+	result.Name = "wxpay"
 	for _, option := range options {
 		option(&result.Ext)
 	}

@@ -2,7 +2,7 @@ package alipay
 
 type TradeQueryRequest struct {
 	AliPayRequestImpl
-	BizContent TradeCreateBizContent `json:"biz_content,omitempty"`
+	BizContent TradeQueryBizContent `json:"biz_content,omitempty"`
 }
 
 type TradeQueryBizContent struct {

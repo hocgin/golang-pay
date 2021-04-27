@@ -12,8 +12,8 @@ type PayRefundRequest struct {
 	TransactionId string   `xml:"transaction_id"`
 	OutTradeNo    string   `xml:"out_trade_no"`
 	OutRefundNo   string   `xml:"out_refund_no"`
-	TotalFee      string   `xml:"total_fee"`
-	RefundFee     string   `xml:"refund_fee"`
+	TotalFee      float64  `xml:"total_fee"`
+	RefundFee     float64  `xml:"refund_fee"`
 	RefundFeeType string   `xml:"refund_fee_type"`
 	RefundDesc    string   `xml:"refund_desc"`
 	RefundAccount string   `xml:"refund_account"`
